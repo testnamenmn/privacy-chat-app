@@ -145,6 +145,17 @@ async function sendEmailChangeEmail(newEmail, token) {
 
 // --- AUTH ROUTES ---
 app.post('/api/auth/signup', async (req, res) => {
+    // 🕵️ DEBUG: Log exactly what the server is receiving
+    console.log("📥 SIGNUP REQUEST RECEIVED");
+    console.log("👉 Content-Type Header:", req.headers['content-type']);
+    console.log("👉 Request Body:", req.body);
+
+    // Safety check to prevent the crash
+    if (!req.body) {
+        console.error("❌ ERROR: req.body is undefined! The frontend is not sending JSON correctly.");
+        return res.status(400).json({ error: 'Bad Request: Missing JSON body. Check frontend headers.' });
+    }
+
     try {
         const { email, password, name, publicKey } = req.body;
         if (!email || !password || !name) return res.status(400).json({ error: 'Missing required fields' });
@@ -154,7 +165,6 @@ app.post('/api/auth/signup', async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // CRITICAL CHECK: Ensure JWT_SECRET exists
         if (!process.env.JWT_SECRET) {
             console.error("❌ CRITICAL: JWT_SECRET is missing from Render Environment Variables!");
             return res.status(500).json({ error: 'Server configuration error: Missing JWT_SECRET' });
@@ -172,7 +182,6 @@ app.post('/api/auth/signup', async (req, res) => {
             res.status(500).json({ error: 'User created, but failed to send verification email.' });
         }
     } catch (err) {
-        // This catches ANY crash and prevents the 502 Bad Gateway!
         console.error("💥 SIGNUP CRASH:", err);
         res.status(500).json({ error: 'Internal server error during signup. Check Render logs.' });
     }
