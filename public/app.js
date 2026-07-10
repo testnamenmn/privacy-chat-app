@@ -1,4 +1,9 @@
-const API_URL = 'http://localhost:3001';
+// --- PRODUCTION MIGRATION CHANGE ---
+// This dynamically switches between your local backend and your live Render backend
+const API_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:3001'
+    : 'https://privacy-chat-app-backend.onrender.com'; // <-- REPLACE THIS WITH YOUR ACTUAL RENDER URL IF DIFFERENT
+
 let socket = null;
 let currentUser = null;
 let activeRoomId = null;
@@ -15,18 +20,6 @@ if (authToken) {
 }
 
 // --- DOM ELEMENTS ---
-const fileInput = document.getElementById('file-input');
-const attachBtn = document.getElementById('attach-btn');
-const filePreviewContainer = document.getElementById('file-preview-container');
-const filePreviewName = document.getElementById('file-preview-name');
-const filePreviewSize = document.getElementById('file-preview-size');
-const cancelFileBtn = document.getElementById('cancel-file-btn');
-
-let selectedFile = null;
-
-
-
-
 const authScreen = document.getElementById('auth-screen');
 const appScreen = document.getElementById('app-screen');
 const loginForm = document.getElementById('login-form');
@@ -49,38 +42,17 @@ const requestsList = document.getElementById('requests-list');
 const groupModal = document.getElementById('group-modal');
 const settingsModal = document.getElementById('settings-modal');
 const settingsNameInput = document.getElementById('settings-name');
-//const settingsEmailInput = document.getElementById('settings-email');
 const settingsProfilePicPreview = document.getElementById('settings-profile-pic-preview');
 const profilePicInput = document.getElementById('profile-pic-input');
 
-
-
-// --- FILE ATTACHMENT LOGIC ---
-attachBtn.addEventListener('click', () => fileInput.click());
-
-fileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Limit file size to 5MB to prevent browser freezing during encryption
-    if (file.size > 5 * 1024 * 1024) {
-        alert('File is too large. Maximum size is 5MB.');
-        fileInput.value = '';
-        return;
-    }
-
-    selectedFile = file;
-    filePreviewName.textContent = file.name;
-    filePreviewSize.textContent = (file.size / 1024).toFixed(2) + ' KB';
-    filePreviewContainer.style.display = 'block';
-});
-
-cancelFileBtn.addEventListener('click', () => {
-    selectedFile = null;
-    fileInput.value = '';
-    filePreviewContainer.style.display = 'none';
-});
-
+// File Sharing DOM Elements
+const fileInput = document.getElementById('file-input');
+const attachBtn = document.getElementById('attach-btn');
+const filePreviewContainer = document.getElementById('file-preview-container');
+const filePreviewName = document.getElementById('file-preview-name');
+const filePreviewSize = document.getElementById('file-preview-size');
+const cancelFileBtn = document.getElementById('cancel-file-btn');
+let selectedFile = null;
 
 // --- AUTH UI TOGGLING ---
 function showAuthScreen(screenId) {
@@ -112,10 +84,9 @@ loginForm.addEventListener('submit', async (e) => {
     if (data.error === 'EMAIL_NOT_VERIFIED') { showVerifyPendingScreen(data.email); return; }
     if (data.error) return authError.textContent = data.error;
 
-    // Ensure private key exists for this specific account
     const storedKey = localStorage.getItem('private_key_' + email);
     if (!storedKey) {
-        alert("Security Error: Private encryption key missing for this account on this device. Please clear cache and re-signup, or use the original device.");
+        alert("Security Error: Private encryption key missing for this account on this device.");
         return;
     }
     myPrivateKeyJwk = storedKey;
@@ -132,7 +103,6 @@ signupForm.addEventListener('submit', async (e) => {
     const email = document.getElementById('signup-email').value;
     const name = document.getElementById('signup-name').value;
 
-    // Generate E2EE Keys
     const keyPair = await cryptoUtils.generateKeyPair();
     const publicKeyJwk = await cryptoUtils.exportKey(keyPair.publicKey);
     const privateKeyJwk = await cryptoUtils.exportKey(keyPair.privateKey);
@@ -217,25 +187,6 @@ function initSocket() {
     socket = io(API_URL, { auth: { token: authToken } });
 
     socket.on('connect', () => { if (activeRoomId) socket.emit('join_room', activeRoomId); });
-    //  --socket receive msg witout file
-  /*  socket.on('receive_message', async (data) => {
-        if (data.roomId === activeRoomId) {
-            if (data.message.isEncrypted && myPrivateKeyJwk) {
-                try {
-                    const decryptedText = await cryptoUtils.decryptMessage(data.message.encryptedPayload, myPrivateKeyJwk);
-                    const decryptedMessage = { ...data.message, text: decryptedText };
-                    renderMessage(decryptedMessage);
-                } catch (err) {
-                    console.error("Decryption failed:", err);
-                    renderMessage({ ...data.message, text: "[Decryption Failed]" });
-                }
-            } else {
-                renderMessage(data.message);
-            }
-        }
-        fetchRooms();
-    });
-*/
 
     socket.on('receive_message', async (data) => {
         if (data.roomId === activeRoomId) {
@@ -261,6 +212,7 @@ function initSocket() {
         }
         fetchRooms();
     });
+
     socket.on('refresh_sidebar', () => { fetchRooms(); });
     socket.on('new_request', () => fetchPendingRequests());
 
@@ -388,7 +340,6 @@ document.getElementById('add-member-btn').addEventListener('click', async () => 
 });
 
 // --- ROOMS & CHAT HISTORY ---
-
 async function fetchRooms() {
     const res = await fetch(`${API_URL}/api/rooms`, { headers: { 'Authorization': `Bearer ${authToken}` } });
     const rooms = await res.json();
@@ -406,54 +357,30 @@ async function fetchRooms() {
 
         const subtitle = room.type === 'group' ? `${room.memberCount} members` : '';
 
-        // Decrypt the last message preview if it's encrypted WITHOUT FILE
-        /*let lastMessageText = 'Start chatting!';
-        if (room.lastMessage) {
-            if (room.lastMessage.isEncrypted && myPrivateKeyJwk) {
-                // We need to decrypt it asynchronously
-                cryptoUtils.decryptMessage(room.lastMessage.encryptedPayload, myPrivateKeyJwk)
-                    .then(decryptedText => {
-                        div.querySelector('.room-preview').textContent = decryptedText;
-                    })
-                    .catch(err => {
-                        console.error("Sidebar decryption failed:", err);
-                        div.querySelector('.room-preview').textContent = "[Encrypted]";
-                    });
-            } else {
-                lastMessageText = room.lastMessage.text;
-            }
-        }*/
-
-
-        // Decrypt the last message preview if it's encrypted WITH FILE
-
         let lastMessageText = 'Start chatting!';
         if (room.lastMessage) {
             if (room.lastMessage.isFile) {
-                // Show file name in sidebar
                 lastMessageText = `📎 ${room.lastMessage.fileName}`;
             } else if (room.lastMessage.isEncrypted && myPrivateKeyJwk && room.lastMessage.encryptedPayload) {
-                // Show placeholder initially, then decrypt asynchronously
                 lastMessageText = "[Encrypted]";
+                // Decrypt asynchronously AFTER appending to DOM
                 cryptoUtils.decryptMessage(room.lastMessage.encryptedPayload, myPrivateKeyJwk)
                     .then(decryptedText => {
                         const previewEl = div.querySelector('.room-preview');
                         if (previewEl) previewEl.textContent = decryptedText;
                     })
-                    .catch(err => {
-                        console.error("Sidebar decryption failed:", err);
-                    });
+                    .catch(err => console.error("Sidebar decryption failed:", err));
             } else {
                 lastMessageText = room.lastMessage.text;
             }
         }
-
 
         div.innerHTML = `${avatarHTML}<div class="room-details"><div class="room-name">${room.name} <span class="subtitle-text">${subtitle}</span></div><div class="room-preview">${lastMessageText}</div></div>`;
         div.onclick = () => openRoom(room.id);
         roomsList.appendChild(div);
     });
 }
+
 async function openRoom(roomId) {
     if (!roomId) return;
     activeRoomId = roomId;
@@ -495,10 +422,7 @@ async function openRoom(roomId) {
     if (data.messages && Array.isArray(data.messages)) {
         for (const msg of data.messages) {
             if (shouldShowDateSeparator(msg, lastMessage)) renderDateSeparator(formatDateSeparator(msg.timestamp));
-            /*if (msg.isEncrypted && myPrivateKeyJwk) {
-                try { msg.text = await cryptoUtils.decryptMessage(msg.encryptedPayload, myPrivateKeyJwk); }
-                catch (err) { console.error("History decryption failed:", err); msg.text = "[Decryption Failed]"; }
-            }*/
+
             // Only try to decrypt if it's a text message with an actual encrypted payload
             if (msg.isEncrypted && myPrivateKeyJwk && msg.encryptedPayload) {
                 try { msg.text = await cryptoUtils.decryptMessage(msg.encryptedPayload, myPrivateKeyJwk); }
@@ -511,34 +435,7 @@ async function openRoom(roomId) {
     fetchRooms();
 }
 
-// --- RENDERING wihout file---
-/*function renderMessage(msg) {
-    const div = document.createElement('div');
-    const isMine = msg.senderId === currentUser.id;
-    div.className = `message ${isMine ? 'mine' : 'theirs'}`;
-    const date = new Date(msg.timestamp);
-    const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-    if (activeRoomType === 'group' && !isMine) {
-        const senderEl = document.createElement('span');
-        senderEl.className = 'sender';
-        senderEl.textContent = msg.senderName;
-        senderEl.style.color = getColorForName(msg.senderName);
-        div.appendChild(senderEl);
-    }
-    const textEl = document.createElement('span');
-    textEl.className = 'message-text';
-    textEl.textContent = msg.text;
-    div.appendChild(textEl);
-    const timeEl = document.createElement('span');
-    timeEl.className = 'message-time';
-    timeEl.textContent = timeStr;
-    div.appendChild(timeEl);
-    messagesContainer.appendChild(div);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}*/
-
-// --- RENDERING wih file---
-
+// --- RENDERING ---
 async function renderMessage(msg) {
     const div = document.createElement('div');
     const isMine = msg.senderId === currentUser.id;
@@ -547,7 +444,6 @@ async function renderMessage(msg) {
     const date = new Date(msg.timestamp);
     const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-    // Sender Name for Groups
     if (activeRoomType === 'group' && !isMine) {
         const senderEl = document.createElement('span');
         senderEl.className = 'sender';
@@ -561,14 +457,12 @@ async function renderMessage(msg) {
         const fileCard = document.createElement('div');
         fileCard.className = 'file-message-card';
 
-        // Decrypt file metadata if needed (for groups in future)
         let fileName = msg.fileName;
         let fileType = msg.fileType;
         let fileSize = msg.fileSize;
         let fileId = msg.fileId;
         let isEncrypted = msg.isEncrypted;
 
-        // UI for the file card
         const isImage = fileType && fileType.startsWith('image/');
         const icon = isImage ? '🖼️' : '📄';
 
@@ -584,21 +478,16 @@ async function renderMessage(msg) {
     `;
         div.appendChild(fileCard);
 
-        // Handle Download/View Click
-        // Handle Download/View Click
-        // Handle Download/View Click
         const btn = fileCard.querySelector('.download-btn');
         btn.onclick = async () => {
             btn.textContent = 'Loading...';
             try {
-                // 1. Fetch encrypted blob from backend
                 const res = await fetch(`${API_URL}/api/files/${fileId}`, { headers: { 'Authorization': `Bearer ${authToken}` } });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.error);
 
                 let finalBase64 = data.content;
 
-                // 2. Decrypt if it's an E2EE direct message
                 if (isEncrypted && myPrivateKeyJwk) {
                     const encryptedPayload = JSON.parse(data.content);
                     finalBase64 = await cryptoUtils.decryptMessage(encryptedPayload, myPrivateKeyJwk);
@@ -616,7 +505,6 @@ async function renderMessage(msg) {
                     }
                 }
 
-                // 3. Convert Base64 to Blob and trigger download/view
                 const base64Data = finalBase64.includes(',') ? finalBase64.split(',')[1] : finalBase64;
                 const byteCharacters = atob(base64Data);
                 const byteNumbers = new Array(byteCharacters.length);
@@ -651,7 +539,6 @@ async function renderMessage(msg) {
         div.appendChild(textEl);
     }
 
-    // Timestamp
     const timeEl = document.createElement('span');
     timeEl.className = 'message-time';
     timeEl.textContent = timeStr;
@@ -684,24 +571,26 @@ function formatDateSeparator(d) {
     return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
-// --- MESSAGING (E2EE) without file ---
-/*async function sendMessage() {
-    const text = messageInput.value.trim();
-    if (!text || !socket || !activeRoomId) return;
-
-    if (activeRoomType === 'direct') {
-        const recipientPublicKey = document.getElementById('chat-room-title').dataset.publicKey;
-        const myPublicKey = localStorage.getItem('public_key_' + currentUser.email);
-        if (!recipientPublicKey || !myPublicKey) return alert("Could not fetch encryption keys.");
-        const encryptedPayload = await cryptoUtils.encryptMessage(text, recipientPublicKey, myPublicKey);
-        socket.emit('send_message', { roomId: activeRoomId, encryptedPayload, isEncrypted: true });
-    } else {
-        socket.emit('send_message', { text, roomId: activeRoomId });
+// --- MESSAGING & FILE UPLOAD (E2EE) ---
+attachBtn.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+        alert('File is too large. Maximum size is 5MB.');
+        fileInput.value = '';
+        return;
     }
-    messageInput.value = '';
-}*/
-
-// --- MESSAGING (E2EE) with file ---
+    selectedFile = file;
+    filePreviewName.textContent = file.name;
+    filePreviewSize.textContent = (file.size / 1024).toFixed(2) + ' KB';
+    filePreviewContainer.style.display = 'block';
+});
+cancelFileBtn.addEventListener('click', () => {
+    selectedFile = null;
+    fileInput.value = '';
+    filePreviewContainer.style.display = 'none';
+});
 
 async function sendMessage() {
     const text = messageInput.value.trim();
@@ -709,39 +598,14 @@ async function sendMessage() {
     // If there is a file selected, send the file instead of text
     if (selectedFile) {
         const sendBtn = document.getElementById('send-btn');
-        sendBtn.textContent = '⏳';
+        sendBtn.textContent = '';
         sendBtn.disabled = true;
 
         try {
-            // 1. Read file as Base64
             const reader = new FileReader();
             reader.onload = async () => {
-                const base64File = reader.result; // This is the raw Base64 string
+                const base64File = reader.result;
 
-               /* // 2. Encrypt the Base64 string using E2EE
-                const recipientPublicKey = document.getElementById('chat-room-title').dataset.publicKey;
-                const myPublicKey = localStorage.getItem('public_key_' + currentUser.email);
-
-                // For files, we encrypt the base64 string. 
-                // Note: If it's a group chat, we fallback to plain text upload for this MVP.
-                let encryptedPayload;
-                if (activeRoomType === 'direct' && recipientPublicKey && myPublicKey) {
-                    encryptedPayload = await cryptoUtils.encryptMessage(base64File, recipientPublicKey, myPublicKey);
-                } else {
-                    // Fallback for groups: send raw base64 (not fully E2EE for groups yet)
-                    //encryptedPayload = { encryptedText: base64File, isPlain: true };
-                    // Group Chat Fallback: Send raw Base64 string directly (no JSON wrapper)
-                    encryptedPayload = base64File; 
-                }
-
-                // 3. Upload encrypted blob to backend
-                const uploadRes = await fetch(`${API_URL}/api/files/upload`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                    body: JSON.stringify({ encryptedContent: JSON.stringify(encryptedPayload) })
-                });*/
-
-                // 2. Encrypt the Base64 string using E2EE
                 const recipientPublicKey = document.getElementById('chat-room-title').dataset.publicKey;
                 const myPublicKey = localStorage.getItem('public_key_' + currentUser.email);
 
@@ -751,26 +615,22 @@ async function sendMessage() {
                 if (activeRoomType === 'direct' && recipientPublicKey && myPublicKey) {
                     // Direct Chat: Encrypt the file
                     encryptedPayload = await cryptoUtils.encryptMessage(base64File, recipientPublicKey, myPublicKey);
-                    contentToUpload = JSON.stringify(encryptedPayload); // Object needs to be stringified
+                    contentToUpload = JSON.stringify(encryptedPayload);
                 } else {
                     // Group Chat Fallback: Raw Base64 string (DO NOT stringify again!)
                     encryptedPayload = base64File;
                     contentToUpload = base64File;
                 }
 
-                // 3. Upload encrypted blob to backend
                 const uploadRes = await fetch(`${API_URL}/api/files/upload`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                    body: JSON.stringify({ encryptedContent: contentToUpload }) // Use the correct variable here
+                    body: JSON.stringify({ encryptedContent: contentToUpload })
                 });
-
-
 
                 const uploadData = await uploadRes.json();
                 if (!uploadRes.ok) throw new Error(uploadData.error);
 
-                // 4. Send Socket message with metadata
                 socket.emit('send_message', {
                     roomId: activeRoomId,
                     isFile: true,
@@ -781,7 +641,6 @@ async function sendMessage() {
                     isEncrypted: activeRoomType === 'direct'
                 });
 
-                // 5. Reset UI
                 selectedFile = null;
                 fileInput.value = '';
                 filePreviewContainer.style.display = 'none';
@@ -794,7 +653,7 @@ async function sendMessage() {
             sendBtn.textContent = 'Send';
             sendBtn.disabled = false;
         }
-        return; // Exit function after sending file
+        return;
     }
 
     // --- STANDARD TEXT MESSAGE LOGIC ---
@@ -811,15 +670,12 @@ async function sendMessage() {
     }
     messageInput.value = '';
 }
-
-
 document.getElementById('send-btn').addEventListener('click', sendMessage);
 messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
 
 // --- SETTINGS MODAL ---
 document.getElementById('settings-btn').addEventListener('click', () => {
     settingsNameInput.value = currentUser.name;
-    //settingsEmailInput.value = currentUser.email;
     settingsProfilePicPreview.src = currentUser.profilePic || 'https://via.placeholder.com/50/2a3942/8696a0?text=' + currentUser.name.charAt(0).toUpperCase();
 
     const emailPass = document.getElementById('settings-email-password');
@@ -838,7 +694,6 @@ document.getElementById('settings-btn').addEventListener('click', () => {
 document.getElementById('close-settings-btn').addEventListener('click', () => settingsModal.classList.remove('active'));
 settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('active'); });
 
-// Profile Pic Upload
 document.getElementById('upload-pic-btn').addEventListener('click', () => profilePicInput.click());
 profilePicInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
@@ -863,7 +718,6 @@ profilePicInput.addEventListener('change', async (e) => {
     reader.readAsDataURL(file);
 });
 
-// Update Name
 document.querySelector('#settings-name').nextElementSibling.addEventListener('click', async () => {
     const newName = settingsNameInput.value.trim();
     if (!newName) return alert('Name cannot be empty');
@@ -881,7 +735,6 @@ document.querySelector('#settings-name').nextElementSibling.addEventListener('cl
     } else { alert(data.error); btn.textContent = 'Save'; }
 });
 
-// Change Password
 document.getElementById('change-password-btn').addEventListener('click', async () => {
     const currentPass = document.getElementById('settings-current-password').value;
     const newPass = document.getElementById('settings-new-password').value;
@@ -902,7 +755,6 @@ document.getElementById('change-password-btn').addEventListener('click', async (
     } else { alert(data.error); btn.textContent = 'Update'; }
 });
 
-// Change Email
 document.getElementById('change-email-btn').addEventListener('click', async () => {
     const currentPass = document.getElementById('settings-email-password').value;
     const newEmail = document.getElementById('settings-new-email').value.trim();
@@ -920,7 +772,6 @@ document.getElementById('change-email-btn').addEventListener('click', async () =
     } else { alert(data.error); btn.textContent = 'Update'; }
 });
 
-// Logout (Safe: Preserves Private Keys)
 document.getElementById('settings-logout-btn').addEventListener('click', () => {
     if (confirm('Are you sure you want to logout?')) {
         if (socket) socket.disconnect();
@@ -933,7 +784,6 @@ document.getElementById('settings-logout-btn').addEventListener('click', () => {
 // --- URL INTERCEPTORS (Magic Links) ---
 const urlParams = new URLSearchParams(window.location.search);
 
-// 1. Email Verification
 const verifyToken = urlParams.get('verifyToken');
 if (verifyToken) {
     (async () => {
@@ -945,7 +795,6 @@ if (verifyToken) {
     })();
 }
 
-// 2. Email Change
 const changeEmailToken = urlParams.get('changeEmailToken');
 if (changeEmailToken) {
     (async () => {
@@ -963,7 +812,6 @@ if (changeEmailToken) {
     })();
 }
 
-// 3. Password Reset
 const resetToken = urlParams.get('resetToken');
 if (resetToken) {
     showAuthScreen('reset-password-form');

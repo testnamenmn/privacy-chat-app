@@ -1,15 +1,6 @@
-# Ignore environment variables
-.env
-
-# Ignore Node modules (CRITICAL)
 node_modules/
-
-# Ignore old local files
+.env
+.vs/
 db.json
 uploads/
-
-# Ignore OS and IDE files
 .DS_Store
-Thumbs.db
-.vs/
-.idea/
