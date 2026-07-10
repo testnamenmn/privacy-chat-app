@@ -95,8 +95,69 @@ const User = mongoose.model('User', UserSchema);
 const Room = mongoose.model('Room', RoomSchema);
 const Request = mongoose.model('Request', RequestSchema);
 
+
+// --- EMAIL CONFIGURATION (Using Resend REST API to avoid SMTP timeouts) ---
+async function sendEmailViaResend(to, subject, html) {
+    const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.RESEND_API_KEY}`
+        },
+        body: JSON.stringify({
+            from: 'PureChat <onboarding@resend.dev>', // Resend's official test domain (no verification needed!)
+            to: [to],
+            subject: subject,
+            html: html
+        })
+    });
+
+    if (!response.ok) {
+        const error = await response.text();
+        console.error("Resend API Error:", error);
+        throw new Error('Failed to send email via Resend');
+    }
+    return await response.json();
+}
+
+async function sendVerificationEmail(email, token) {
+    const verifyLink = `${process.env.FRONTEND_URL}/?verifyToken=${token}`;
+    const html = `<div style="font-family: sans-serif; padding: 20px; background: #111b21; color: #e9edef; border-radius: 8px; max-width: 500px; margin: auto;">
+      <h2 style="color: #0096FF;">Welcome to PureChat!</h2>
+      <p>Please click the button below to verify your email address and activate your account.</p>
+      <a href="${verifyLink}" style="display: inline-block; padding: 12px 24px; background: #0096FF; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0;">Verify Email</a>
+      <p style="font-size: 12px; color: #8696a0;">This link expires in 15 minutes.</p></div>`;
+    await sendEmailViaResend(email, "Verify your PureChat account", html);
+}
+
+async function sendPasswordResetEmail(email, token) {
+    const resetLink = `${process.env.FRONTEND_URL}/?resetToken=${token}`;
+    const html = `<div style="font-family: sans-serif; padding: 20px; background: #111b21; color: #e9edef; border-radius: 8px; max-width: 500px; margin: auto;">
+      <h2 style="color: #0096FF;">Reset Your Password</h2>
+      <p>Click the button below to choose a new password.</p>
+      <a href="${resetLink}" style="display: inline-block; padding: 12px 24px; background: #0096FF; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0;">Reset Password</a>
+      <p style="font-size: 12px; color: #8696a0;">This link expires in 15 minutes.</p></div>`;
+    await sendEmailViaResend(email, "Reset your PureChat password", html);
+}
+
+async function sendEmailChangeEmail(newEmail, token) {
+    const verifyLink = `${process.env.FRONTEND_URL}/?changeEmailToken=${token}`;
+    const html = `<div style="font-family: sans-serif; padding: 20px; background: #111b21; color: #e9edef; border-radius: 8px; max-width: 500px; margin: auto;">
+      <h2 style="color: #0096FF;">Confirm New Email</h2>
+      <p>Click the button below to confirm this email change.</p>
+      <a href="${verifyLink}" style="display: inline-block; padding: 12px 24px; background: #0096FF; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0;">Confirm Email Change</a>
+      <p style="font-size: 12px; color: #8696a0;">This link expires in 15 minutes.</p></div>`;
+    await sendEmailViaResend(newEmail, "Verify your new PureChat email", html);
+}
+
+
+
+
 // --- EMAIL CONFIGURATION ---
-async function getTransporter() {
+
+
+
+/*async function getTransporter() {
     return nodemailer.createTransport({
         host: "smtp.resend.com", port: 465, secure: true,
         auth: { user: 'resend', pass: process.env.RESEND_API_KEY },
@@ -143,7 +204,7 @@ async function sendEmailChangeEmail(newEmail, token) {
       <a href="${verifyLink}" style="display: inline-block; padding: 12px 24px; background: #0096FF; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0;">Confirm Email Change</a>
       <p style="font-size: 12px; color: #8696a0;">This link expires in 15 minutes.</p></div>`
     });
-}
+}*/
 
 // --- AUTH ROUTES ---
 app.post('/api/auth/signup', async (req, res) => {
