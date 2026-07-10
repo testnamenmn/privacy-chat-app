@@ -1,17 +1,15 @@
-# Ignore environment variables (NEVER commit this!)
+# Ignore environment variables
 .env
 
-# Ignore Node modules
+# Ignore Node modules (CRITICAL)
 node_modules/
 
-# Ignore old local files (since we moved to MongoDB/Cloudinary)
+# Ignore old local files
 db.json
 uploads/
 
-# Ignore OS files
+# Ignore OS and IDE files
 .DS_Store
 Thumbs.db
-
-# Ignore IDE/Editor temporary files (FIX FOR YOUR ERROR)
 .vs/
 .idea/

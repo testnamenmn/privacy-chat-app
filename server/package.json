@@ -1,0 +1,29 @@
+{
+  "name": "privacy-chat-server",
+  "version": "1.0.0",
+  "description": "Node.js backend for PureChat PWA",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "keywords": [
+    "chat",
+    "privacy",
+    "websocket"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^4.22.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.7.4",
+    "nodemailer": "^9.0.3",
+    "socket.io": "^4.8.3"
+  },
+  "type": "commonjs"
+}
