@@ -10,11 +10,43 @@ const mongoose = require('mongoose');
 const { v2: cloudinary } = require('cloudinary');
 
 const app = express();
-app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:3000", methods: ["GET", "POST"] }));
+/*app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:3000", methods: ["GET", "POST"] }));
 app.use(express.json({ limit: '10mb' }));
 
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: process.env.FRONTEND_URL || "http://localhost:3000", methods: ["GET", "POST"] } });
+*/
+
+// --- BULLETPROOF CORS SETUP ---
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'https://glowing-scone-f48160.netlify.app', // Your live Netlify URL
+    process.env.FRONTEND_URL
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true); // Allow non-browser requests
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'CORS policy does not allow access from this origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true
+}));
+
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: allowedOrigins,
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
+
 
 const userSocketMap = {};
 
