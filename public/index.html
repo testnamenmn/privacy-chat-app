@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PureChat - Minimal & Private</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ========================================== -->
+    <!-- AUTH SCREEN (Unified Layout)               -->
+    <!-- ========================================== -->
+    <div id="auth-screen" class="screen active">
+        <div class="container">
+            <h1>PureChat</h1>
+
+            <!-- LOGIN FORM (Active by default) -->
+            <form id="login-form" class="auth-form active">
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button type="submit">Login</button>
+                <p style="text-align: right; margin-top: -8px;"><a href="#" id="show-forgot-password" style="color: var(--accent-blue); text-decoration: none; font-size: 0.85rem;">Forgot Password?</a></p>
+                <p class="toggle-text">No account? <a href="#" id="show-signup">Sign up</a></p>
+
+            </form>
+
+            <!-- SIGNUP FORM (Hidden by default) -->
+            <form id="signup-form" class="auth-form">
+                <input type="text" id="signup-name" placeholder="Your Name" required>
+                <input type="email" id="signup-email" placeholder="Email" required>
+                <input type="password" id="signup-password" placeholder="Password" required>
+                <input type="password" id="signup-confirm" placeholder="Confirm Password" required>
+                <button type="submit">Create Account</button>
+                <p class="toggle-text">Have an account? <a href="#" id="show-login">Login</a></p>
+            </form>
+            <!-- FORGOT PASSWORD SCREEN -->
+            <form id="forgot-password-form" class="auth-form">
+                <h3 style="color: var(--accent-blue); margin-bottom: 0.5rem;">Forgot Password?</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem;">Enter your email and we'll send you a link to reset your password.</p>
+                <input type="email" id="forgot-email" placeholder="Your Email" required>
+                <button type="submit">Send Reset Link</button>
+                <p class="toggle-text"><a href="#" id="back-to-login-from-forgot">Back to Login</a></p>
+            </form>
+
+            <!-- RESET PASSWORD SCREEN (shown after clicking email link) -->
+            <form id="reset-password-form" class="auth-form">
+                <h3 style="color: var(--accent-blue); margin-bottom: 0.5rem;">Set New Password</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem;">Enter your new password below.</p>
+                <input type="password" id="reset-new-password" placeholder="New Password" required>
+                <input type="password" id="reset-confirm-password" placeholder="Confirm New Password" required>
+                <button type="submit">Reset Password</button>
+            </form>
+            <!-- VERIFICATION PENDING SCREEN (Hidden by default) -->
+            <div id="verify-pending-screen" class="auth-form" style="text-align: center;">
+                <h3 style="color: var(--accent-blue); margin-bottom: 1rem;">Check your email!</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">We sent a verification link to <strong id="pending-email-display"></strong>. Click the link to activate your account.</p>
+                <button id="resend-link-btn" style="background: transparent; border: 1px solid var(--accent-blue); color: var(--accent-blue);">Resend Verification Link</button>
+                <p class="toggle-text" style="margin-top: 1.5rem;"><a href="#" id="back-to-login">Back to Login</a></p>
+            </div>
+
+            <p id="auth-error" class="error-msg"></p>
+
+            <!-- UNIFIED WELCOME MESSAGE -->
+            <div class="auth-footer-welcome">
+                <p class="welcome-title">Welcome to PureChat</p>
+                <p class="welcome-subtitle">Zero tracking. Just connection. Search for a friend or create a group to start chatting securely.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MAIN APP SCREEN                            -->
+    <!-- ========================================== -->
+    <div id="app-screen" class="screen">
+
+        <!-- SIDEBAR -->
+        <aside id="sidebar">
+            <div class="sidebar-header">
+                <h3>Chats</h3>
+                <button id="new-group-btn" class="icon-btn" title="New Group">👥</button>
+            </div>
+
+            <!-- SEARCH BAR -->
+            <div class="search-container">
+                <input type="email" id="search-email" placeholder="Search by email...">
+                <button id="search-btn">Search</button>
+            </div>
+            <div id="search-result" class="search-result"></div>
+
+            <!-- PENDING REQUESTS -->
+            <div id="requests-container" class="requests-container" style="display:none;">
+                <h4>Pending Requests</h4>
+                <div id="requests-list"></div>
+            </div>
+
+            <!-- CHAT LIST -->
+            <div id="rooms-list"></div>
+
+            <!-- SIDEBAR FOOTER (Settings instead of Logout) -->
+            <div class="sidebar-footer">
+                <span id="user-name-display"></span>
+                <button id="settings-btn" class="icon-btn" title="Settings">⚙️</button>
+            </div>
+        </aside>
+
+        <!-- CHAT AREA -->
+        <main id="chat-area">
+            <!-- Welcome screen when no chat is selected -->
+            <div id="welcome-screen" class="center-content">
+                <h2>Welcome to PureChat</h2>
+                <p>Select a chat from the left or start a new one.</p>
+            </div>
+
+            <!-- Active Chat View -->
+            <div id="active-chat-view" style="display:none; flex-direction:column; height:100%;">
+                <header>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div id="chat-avatar" class="room-avatar"></div>
+                        <div>
+                            <h2 id="chat-room-title">Chat</h2>
+                            <span id="chat-room-subtitle" class="subtitle-text"></span>
+                        </div>
+                    </div>
+                    <button id="add-member-btn" class="icon-btn" title="Add Member" style="display:none;">➕</button>
+                </header>
+
+                <main id="messages-container"></main>
+
+                <footer>
+                    <!-- File Preview Area (Hidden by default) -->
+                    <div id="file-preview-container" style="display:none; position:absolute; bottom: 70px; left: 16px; background: var(--bg-header); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); max-width: 250px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                            <span id="file-preview-name" style="font-size:0.8rem; color:var(--text-secondary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+                            <button id="cancel-file-btn" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.2rem; line-height:1;">&times;</button>
+                        </div>
+                        <div id="file-preview-size" style="font-size:0.7rem; color:var(--text-secondary);"></div>
+                    </div>
+
+                    <!-- Hidden File Input -->
+                    <input type="file" id="file-input" style="display:none" accept="image/*,.pdf,.doc,.docx,.txt,.zip">
+
+                    <!-- Attach Button -->
+                    <button id="attach-btn" class="icon-btn" title="Attach File">📎</button>
+
+                    <input type="text" id="message-input" placeholder="Type a message...">
+                    <button id="send-btn">Send</button>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- CREATE GROUP MODAL                         -->
+    <!-- ========================================== -->
+    <div id="group-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Group</h3>
+                <button id="close-modal-btn" class="icon-btn">&times;</button>
+            </div>
+            <input type="text" id="group-name-input" placeholder="Group Name" class="modal-input">
+
+            <div class="modal-search">
+                <input type="email" id="group-search-email" placeholder="Add members by email...">
+                <button id="group-search-btn">Add</button>
+            </div>
+            <div id="group-search-result" class="search-result"></div>
+
+            <div id="selected-members" class="selected-members"></div>
+
+            <button id="create-group-submit" class="modal-submit">Create Group</button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SETTINGS MODAL                             -->
+    <!-- ========================================== -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content settings-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button id="close-settings-btn" class="icon-btn">&times;</button>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="settings-section">
+                <h4>Profile</h4>
+                <div class="setting-item profile-pic-container">
+                    <label>Profile Picture</label>
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <img id="settings-profile-pic-preview" src="" alt="Profile" class="profile-pic-preview">
+                        <input type="file" id="profile-pic-input" accept="image/*" style="display: none;">
+                        <button id="upload-pic-btn" class="settings-action-btn">Upload</button>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>Name</label>
+                    <input type="text" id="settings-name" class="settings-input">
+                    <button class="settings-action-btn">Save</button>
+                </div>
+            </div>
+
+            <!-- Account Security Section -->
+            <!--<div class="settings-section">
+            <h4>Account Security</h4>
+            <div class="setting-item">
+                <label>Change Email</label>
+                <input type="email" id="settings-email" class="settings-input" disabled>
+                <button class="settings-action-btn">Update</button>
+            </div>-->
+            <!-- NEW: Change Password Fields -->
+            <!--<div class="setting-item">
+                <label>Current Password</label>
+                <input type="password" id="settings-current-password" class="settings-input" placeholder="Enter current password">
+            </div>
+            <div class="setting-item">
+                <label>New Password</label>
+                <input type="password" id="settings-new-password" class="settings-input" placeholder="Enter new password">
+            </div>
+            <div class="setting-item">
+                <label>Confirm Password</label>
+                <input type="password" id="settings-confirm-password" class="settings-input" placeholder="Confirm new password">
+                <button id="change-password-btn" class="settings-action-btn">Update</button>
+            </div>-->
+            <!-- UPDATED: Change Email Fields -->
+            <!--<div class="setting-item">
+                    <label>Current Password</label>
+                    <input type="password" id="settings-email-password" class="settings-input" placeholder="Enter current password">
+                </div>
+                <div class="setting-item">
+                    <label>New Email</label>
+                    <input type="email" id="settings-new-email" class="settings-input" placeholder="Enter new email">
+                    <button id="change-email-btn" class="settings-action-btn">Update</button>
+                </div>
+            </div>-->
+            <!-- Account Security Section -->
+            <div class="settings-section">
+                <h4>Account Security</h4>
+
+                <!-- 1. Change Email Fields -->
+                <div class="setting-item">
+                    <label>Current Password</label>
+                    <input type="password" id="settings-email-password" class="settings-input" placeholder="Enter current password">
+                </div>
+                <div class="setting-item">
+                    <label>New Email</label>
+                    <input type="email" id="settings-new-email" class="settings-input" placeholder="Enter new email">
+                    <button id="change-email-btn" class="settings-action-btn">Update</button>
+                </div>
+
+                <!-- 2. Change Password Fields -->
+                <div class="setting-item">
+                    <label>Current Password</label>
+                    <input type="password" id="settings-current-password" class="settings-input" placeholder="Enter current password">
+                </div>
+                <div class="setting-item">
+                    <label>New Password</label>
+                    <input type="password" id="settings-new-password" class="settings-input" placeholder="Enter new password">
+                </div>
+                <div class="setting-item">
+                    <label>Confirm Password</label>
+                    <input type="password" id="settings-confirm-password" class="settings-input" placeholder="Confirm new password">
+                    <button id="change-password-btn" class="settings-action-btn">Update</button>
+                </div>
+            </div>
+
+            <!-- Danger Zone / Logout -->
+            <div class="settings-section danger-zone">
+                <button id="settings-logout-btn" class="logout-btn">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="crypto.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

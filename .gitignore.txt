@@ -1,0 +1,17 @@
+# Ignore environment variables (NEVER commit this!)
+.env
+
+# Ignore Node modules
+node_modules/
+
+# Ignore old local files (since we moved to MongoDB/Cloudinary)
+db.json
+uploads/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE/Editor temporary files (FIX FOR YOUR ERROR)
+.vs/
+.idea/

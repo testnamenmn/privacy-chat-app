@@ -1,0 +1,314 @@
+<!--
+            below code adds the major upgrade incl grp chat and request-->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PureChat - Minimal & Private</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- AUTH SCREEN without verify -->
+    <!--<div id="auth-screen" class="screen active">
+        <div class="container">
+            <h1>PureChat</h1>
+            <p class="subtitle">Zero tracking. Just connection.</p>
+            <form id="login-form" class="auth-form">
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button type="submit">Login</button>
+                <p class="toggle-text">No account? <a href="#" id="show-signup">Sign up</a></p>
+            </form>
+            <form id="signup-form" class="auth-form" style="display:none;">
+                <input type="text" id="signup-name" placeholder="Your Name" required>
+                <input type="email" id="signup-email" placeholder="Email" required>
+                <input type="password" id="signup-password" placeholder="Password" required>
+                <input type="password" id="signup-confirm" placeholder="Confirm Password" required>
+                <button type="submit">Create Account</button>
+                <p class="toggle-text">Have an account? <a href="#" id="show-login">Login</a></p>
+            </form>
+            <p id="auth-error" class="error-msg"></p>
+        </div>
+    </div>-->
+    <!-- AUTH SCREEN with email verify-->
+    <!--<div id="auth-screen" class="screen active">
+        <div class="container">
+            <h1>PureChat</h1>
+            <p class="subtitle">Zero tracking. Just connection.</p>-->
+    <!-- LOGIN FORM -->
+    <!--<form id="login-form" class="auth-form">
+        <input type="email" id="login-email" placeholder="Email" required>
+        <input type="password" id="login-password" placeholder="Password" required>
+        <button type="submit">Login</button>
+        <p class="toggle-text">No account? <a href="#" id="show-signup">Sign up</a></p>
+    </form>-->
+    <!-- SIGNUP FORM -->
+    <!--<form id="signup-form" class="auth-form" style="display:none;">
+        <input type="text" id="signup-name" placeholder="Your Name" required>
+        <input type="email" id="signup-email" placeholder="Email" required>
+        <input type="password" id="signup-password" placeholder="Password" required>
+        <input type="password" id="signup-confirm" placeholder="Confirm Password" required>
+        <button type="submit">Create Account</button>
+        <p class="toggle-text">Have an account? <a href="#" id="show-login">Login</a></p>
+    </form>-->
+    <!-- NEW: VERIFICATION PENDING SCREEN -->
+    <!--<div id="verify-pending-screen" class="auth-form" style="display:none; text-align: center;">
+                <h3 style="color: var(--accent-green); margin-bottom: 1rem;">Check your email!</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">We sent a verification link to <strong id="pending-email-display"></strong>. Click the link to activate your account.</p>
+                <button id="resend-link-btn" style="background: transparent; border: 1px solid var(--accent-green); color: var(--accent-green);">Resend Verification Link</button>
+                <p class="toggle-text" style="margin-top: 1.5rem;"><a href="#" id="back-to-login">Back to Login</a></p>
+            </div>
+
+            <p id="auth-error" class="error-msg"></p>
+        </div>
+    </div>-->
+    <!-- AUTH SCREEN (Unified Layout) -->
+    <div id="auth-screen" class="screen active">
+        <div class="container">
+            <h1>PureChat</h1>
+
+            <!-- LOGIN FORM -->
+            <form id="login-form" class="auth-form">
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button type="submit">Login</button>
+                <p class="toggle-text">No account? <a href="#" id="show-signup">Sign up</a></p>
+            </form>
+
+            <!-- SIGNUP FORM -->
+            <form id="signup-form" class="auth-form" style="display:none;">
+                <input type="text" id="signup-name" placeholder="Your Name" required>
+                <input type="email" id="signup-email" placeholder="Email" required>
+                <input type="password" id="signup-password" placeholder="Password" required>
+                <input type="password" id="signup-confirm" placeholder="Confirm Password" required>
+                <button type="submit">Create Account</button>
+                <p class="toggle-text">Have an account? <a href="#" id="show-login">Login</a></p>
+            </form>
+
+            <!-- VERIFICATION PENDING SCREEN -->
+            <div id="verify-pending-screen" class="auth-form" style="display:none; text-align: center;">
+                <h3 style="color: var(--accent-blue); margin-bottom: 1rem;">Check your email!</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">We sent a verification link to <strong id="pending-email-display"></strong>. Click the link to activate your account.</p>
+                <button id="resend-link-btn" style="background: transparent; border: 1px solid var(--accent-blue); color: var(--accent-blue);">Resend Verification Link</button>
+                <p class="toggle-text" style="margin-top: 1.5rem;"><a href="#" id="back-to-login">Back to Login</a></p>
+            </div>
+
+            <p id="auth-error" class="error-msg"></p>
+
+            <!-- NEW: Unified Welcome Message Below Forms -->
+            <div class="auth-footer-welcome">
+                <p class="welcome-title">Welcome to PureChat</p>
+                <p class="welcome-subtitle">Zero tracking. Just connection. Search for a friend or create a group to start chatting securely.</p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MAIN APP SCREEN -->
+    <div id="app-screen" class="screen">
+        <aside id="sidebar">
+            <div class="sidebar-header">
+                <h3>Chats</h3>
+                <button id="new-group-btn" class="icon-btn" title="New Group">👥</button>
+            </div>
+
+            <div class="search-container">
+                <input type="email" id="search-email" placeholder="Search by email...">
+                <button id="search-btn">Search</button>
+            </div>
+            <div id="search-result" class="search-result"></div>
+
+            <div id="requests-container" class="requests-container" style="display:none;">
+                <h4>Pending Requests</h4>
+                <div id="requests-list"></div>
+            </div>
+
+            <div id="rooms-list"></div>
+
+            <div class="sidebar-footer">
+                <span id="user-name-display"></span>
+                <button id="settings-btn" class="icon-btn" title="Settings">⚙️</button>
+            </div>
+        </aside>
+
+        <main id="chat-area">
+            <div id="welcome-screen" class="center-content">
+                <h2>Welcome to PureChat</h2>
+                <p>Search for a friend or create a group to start chatting.</p>
+            </div>
+
+            <div id="active-chat-view" style="display:none; flex-direction:column; height:100%;">
+                <header>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div id="chat-avatar" class="room-avatar"></div>
+                        <div>
+                            <h2 id="chat-room-title">Chat</h2>
+                            <span id="chat-room-subtitle" class="subtitle-text"></span>
+                        </div>
+                    </div>
+                    <button id="add-member-btn" class="icon-btn" title="Add Member" style="display:none;">➕</button>
+                </header>
+                <main id="messages-container"></main>
+                <footer>
+                    <input type="text" id="message-input" placeholder="Type a message...">
+                    <button id="send-btn">Send</button>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- CREATE GROUP MODAL -->
+    <div id="group-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Group</h3>
+                <button id="close-modal-btn" class="icon-btn">&times;</button>
+            </div>
+            <input type="text" id="group-name-input" placeholder="Group Name" class="modal-input">
+
+            <div class="modal-search">
+                <input type="email" id="group-search-email" placeholder="Add members by email...">
+                <button id="group-search-btn">Add</button>
+            </div>
+            <div id="group-search-result" class="search-result"></div>
+
+            <div id="selected-members" class="selected-members"></div>
+
+            <button id="create-group-submit" class="modal-submit">Create Group</button>
+        </div>
+    </div>
+    <!-- SETTINGS MODAL -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content settings-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button id="close-settings-btn" class="icon-btn">&times;</button>
+            </div>
+
+            <div class="settings-section">
+                <h4>Profile</h4>
+                <div class="setting-item">
+                    <label>Profile Picture</label>
+                    <button class="settings-action-btn">Upload</button>
+                </div>
+                <div class="setting-item">
+                    <label>Name</label>
+                    <input type="text" id="settings-name" class="settings-input">
+                    <button class="settings-action-btn">Save</button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h4>Account Security</h4>
+                <div class="setting-item">
+                    <label>Change Email</label>
+                    <input type="email" id="settings-email" class="settings-input" disabled>
+                    <button class="settings-action-btn">Update</button>
+                </div>
+                <div class="setting-item">
+                    <label>Change Password</label>
+                    <input type="password" id="settings-password" class="settings-input" placeholder="New Password">
+                    <button class="settings-action-btn">Update</button>
+                </div>
+            </div>
+
+            <div class="settings-section danger-zone">
+                <button id="settings-logout-btn" class="logout-btn">Logout</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+
+
+
+
+
+<!--<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PureChat - Minimal & Private</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>-->
+<!-- AUTH SCREEN -->
+<!--<div id="auth-screen" class="screen active">
+    <div class="container">
+        <h1>PureChat</h1>
+        <p class="subtitle">Zero tracking. Just connection.</p>
+        <form id="login-form" class="auth-form">
+            <input type="email" id="login-email" placeholder="Email" required>
+            <input type="password" id="login-password" placeholder="Password" required>
+            <button type="submit">Login</button>
+            <p class="toggle-text">No account? <a href="#" id="show-signup">Sign up</a></p>
+        </form>
+        <form id="signup-form" class="auth-form" style="display:none;">
+            <input type="text" id="signup-name" placeholder="Your Name" required>
+            <input type="email" id="signup-email" placeholder="Email" required>
+            <input type="password" id="signup-password" placeholder="Password" required>
+            <input type="password" id="signup-confirm" placeholder="Confirm Password" required>
+            <button type="submit">Create Account</button>
+            <p class="toggle-text">Have an account? <a href="#" id="show-login">Login</a></p>
+        </form>
+        <p id="auth-error" class="error-msg"></p>
+    </div>
+</div>-->
+<!-- MAIN APP SCREEN -->
+<!--<div id="app-screen" class="screen">-->
+<!-- SIDEBAR -->
+<!--<aside id="sidebar">
+    <div class="sidebar-header">
+        <h3>Chats</h3>
+    </div>-->
+<!-- SEARCH BAR -->
+<!--<div class="search-container">
+    <input type="email" id="search-email" placeholder="Search by email...">
+    <button id="search-btn">Search</button>
+</div>
+<div id="search-result" class="search-result"></div>-->
+<!-- PENDING REQUESTS -->
+<!--<div id="requests-container" class="requests-container" style="display:none;">
+    <h4>Pending Requests</h4>
+    <div id="requests-list"></div>
+</div>-->
+<!-- CHAT LIST -->
+<!--<div id="rooms-list"></div>
+
+    <div class="sidebar-footer">
+        <span id="user-name-display"></span>
+        <button id="logout-btn" class="icon-btn" title="Logout">⏻</button>
+    </div>
+</aside>-->
+<!-- CHAT AREA -->
+<!--<main id="chat-area">
+            <div id="welcome-screen" class="center-content">
+                <h2>Welcome to PureChat</h2>
+                <p>Search for a friend's email to start chatting.</p>
+            </div>
+
+            <div id="active-chat-view" style="display:none; flex-direction:column; height:100%;">
+                <header>
+                    <h2 id="chat-room-title">Chat</h2>
+                </header>
+                <main id="messages-container"></main>
+                <footer>
+                    <input type="text" id="message-input" placeholder="Type a message...">
+                    <button id="send-btn">Send</button>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>-->
