@@ -111,9 +111,12 @@ signupForm.addEventListener('submit', async (e) => {
     localStorage.setItem('public_key_' + email, publicKeyJwk);
     myPrivateKeyJwk = privateKeyJwk;
 
+  
+
     const res = await fetch(`${API_URL}/api/auth/signup`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, publicKey: publicKeyJwk })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }, // <--- MUST HAVE THIS
+        body: JSON.stringify({ name, email, password, publicKey: publicKeyJwk }) // <--- MUST HAVE THIS
     });
 
     const data = await res.json();

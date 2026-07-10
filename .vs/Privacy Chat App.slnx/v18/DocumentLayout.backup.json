@@ -3,20 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\Naman Gupta\\Desktop\\Other Projects\\Privacy Chat App\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Naman Gupta\\Desktop\\Other Projects\\Privacy Chat App\\server\\.env||{8B382828-6202-11D1-8870-0000F87579D2}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server\\.env||{8B382828-6202-11D1-8870-0000F87579D2}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Naman Gupta\\Desktop\\Other Projects\\Privacy Chat App\\server\\index.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server\\index.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Naman Gupta\\Desktop\\Other Projects\\Privacy Chat App\\server\\db.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server\\db.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Naman Gupta\\Desktop\\Other Projects\\Privacy Chat App\\server\\.env||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server\\.env||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Naman Gupta\\Desktop\\Other Projects\\Privacy Chat App\\public\\app.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:public\\app.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Naman Gupta\\Desktop\\Other Projects\\Privacy Chat App\\server\\db.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:server\\db.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Naman Gupta\\Desktop\\Other Projects\\Privacy Chat App\\public\\style.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
@@ -38,7 +38,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -46,20 +46,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": ".env",
               "DocumentMoniker": "C:\\Users\\Naman Gupta\\Desktop\\Other Projects\\Privacy Chat App\\server\\.env",
               "RelativeDocumentMoniker": "server\\.env",
               "ToolTip": "C:\\Users\\Naman Gupta\\Desktop\\Other Projects\\Privacy Chat App\\server\\.env",
               "RelativeToolTip": "server\\.env",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAjAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAACDAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
               "WhenOpened": "2026-07-10T10:32:02.711Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "db.json",
               "DocumentMoniker": "C:\\Users\\Naman Gupta\\Desktop\\Other Projects\\Privacy Chat App\\server\\db.json",
               "RelativeDocumentMoniker": "server\\db.json",
@@ -67,30 +67,30 @@
               "RelativeToolTip": "server\\db.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-07-09T11:18:50.085Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-07-09T11:18:50.085Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "app.js",
               "DocumentMoniker": "C:\\Users\\Naman Gupta\\Desktop\\Other Projects\\Privacy Chat App\\public\\app.js",
               "RelativeDocumentMoniker": "public\\app.js",
               "ToolTip": "C:\\Users\\Naman Gupta\\Desktop\\Other Projects\\Privacy Chat App\\public\\app.js",
               "RelativeToolTip": "public\\app.js",
-              "ViewState": "AgIAAGUCAAAAAAAAAAAAwIMCAAAKAAAAAAAAAA==",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAAAQAAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
-              "WhenOpened": "2026-07-05T10:05:01.357Z"
+              "WhenOpened": "2026-07-05T10:05:01.357Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "index.js",
               "DocumentMoniker": "C:\\Users\\Naman Gupta\\Desktop\\Other Projects\\Privacy Chat App\\server\\index.js",
               "RelativeDocumentMoniker": "server\\index.js",
               "ToolTip": "C:\\Users\\Naman Gupta\\Desktop\\Other Projects\\Privacy Chat App\\server\\index.js",
               "RelativeToolTip": "server\\index.js",
-              "ViewState": "AgIAAM0BAAAAAAAAAAAkwO0BAABMAAAAAAAAAA==",
+              "ViewState": "AgIAAI8AAAAAAAAAAAAkwLIAAAADAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
               "WhenOpened": "2026-07-05T08:34:15.362Z",
               "EditorCaption": ""
