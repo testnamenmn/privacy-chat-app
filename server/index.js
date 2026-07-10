@@ -145,20 +145,36 @@ async function sendEmailChangeEmail(newEmail, token) {
 
 // --- AUTH ROUTES ---
 app.post('/api/auth/signup', async (req, res) => {
-    const { email, password, name, publicKey } = req.body;
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
-    if (existingUser) return res.status(400).json({ error: 'Email already registered' });
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const verifyToken = jwt.sign({ email: email.toLowerCase() }, process.env.JWT_SECRET, { expiresIn: '15m' });
-
-    await User.create({ email: email.toLowerCase(), name, passwordHash: hashedPassword, publicKey, isVerified: false, verifyToken });
-
     try {
-        await sendVerificationEmail(email.toLowerCase(), verifyToken);
-        res.json({ success: true, message: 'Verification email sent.' });
+        const { email, password, name, publicKey } = req.body;
+        if (!email || !password || !name) return res.status(400).json({ error: 'Missing required fields' });
+
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        if (existingUser) return res.status(400).json({ error: 'Email already registered' });
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // CRITICAL CHECK: Ensure JWT_SECRET exists
+        if (!process.env.JWT_SECRET) {
+            console.error("❌ CRITICAL: JWT_SECRET is missing from Render Environment Variables!");
+            return res.status(500).json({ error: 'Server configuration error: Missing JWT_SECRET' });
+        }
+
+        const verifyToken = jwt.sign({ email: email.toLowerCase() }, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+        await User.create({ email: email.toLowerCase(), name, passwordHash: hashedPassword, publicKey, isVerified: false, verifyToken });
+
+        try {
+            await sendVerificationEmail(email.toLowerCase(), verifyToken);
+            res.json({ success: true, message: 'Verification email sent.' });
+        } catch (emailErr) {
+            console.error("Email send error:", emailErr);
+            res.status(500).json({ error: 'User created, but failed to send verification email.' });
+        }
     } catch (err) {
-        res.status(500).json({ error: 'Failed to send verification email' });
+        // This catches ANY crash and prevents the 502 Bad Gateway!
+        console.error("💥 SIGNUP CRASH:", err);
+        res.status(500).json({ error: 'Internal server error during signup. Check Render logs.' });
     }
 });
 
