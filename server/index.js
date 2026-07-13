@@ -120,8 +120,10 @@ async function sendEmailViaResend(to, subject, html) {
     return await response.json();
 }
 
-async function sendVerificationEmail(email, token) {
-    const verifyLink = `${process.env.FRONTEND_URL}/?verifyToken=${token}`;
+
+// --- UPDATED EMAIL FUNCTIONS (Dynamic Base URL) ---
+async function sendVerificationEmail(email, token, baseUrl) {
+    const verifyLink = `${baseUrl}/?verifyToken=${token}`; // Uses the dynamic URL!
     const html = `<div style="font-family: sans-serif; padding: 20px; background: #111b21; color: #e9edef; border-radius: 8px; max-width: 500px; margin: auto;">
       <h2 style="color: #0096FF;">Welcome to PureChat!</h2>
       <p>Please click the button below to verify your email address and activate your account.</p>
@@ -130,8 +132,8 @@ async function sendVerificationEmail(email, token) {
     await sendEmailViaResend(email, "Verify your PureChat account", html);
 }
 
-async function sendPasswordResetEmail(email, token) {
-    const resetLink = `${process.env.FRONTEND_URL}/?resetToken=${token}`;
+async function sendPasswordResetEmail(email, token, baseUrl) {
+    const resetLink = `${baseUrl}/?resetToken=${token}`;
     const html = `<div style="font-family: sans-serif; padding: 20px; background: #111b21; color: #e9edef; border-radius: 8px; max-width: 500px; margin: auto;">
       <h2 style="color: #0096FF;">Reset Your Password</h2>
       <p>Click the button below to choose a new password.</p>
@@ -140,8 +142,8 @@ async function sendPasswordResetEmail(email, token) {
     await sendEmailViaResend(email, "Reset your PureChat password", html);
 }
 
-async function sendEmailChangeEmail(newEmail, token) {
-    const verifyLink = `${process.env.FRONTEND_URL}/?changeEmailToken=${token}`;
+async function sendEmailChangeEmail(newEmail, token, baseUrl) {
+    const verifyLink = `${baseUrl}/?changeEmailToken=${token}`;
     const html = `<div style="font-family: sans-serif; padding: 20px; background: #111b21; color: #e9edef; border-radius: 8px; max-width: 500px; margin: auto;">
       <h2 style="color: #0096FF;">Confirm New Email</h2>
       <p>Click the button below to confirm this email change.</p>
@@ -149,8 +151,6 @@ async function sendEmailChangeEmail(newEmail, token) {
       <p style="font-size: 12px; color: #8696a0;">This link expires in 15 minutes.</p></div>`;
     await sendEmailViaResend(newEmail, "Verify your new PureChat email", html);
 }
-
-
 
 
 // --- EMAIL CONFIGURATION ---
@@ -238,7 +238,9 @@ app.post('/api/auth/signup', async (req, res) => {
         await User.create({ email: email.toLowerCase(), name, passwordHash: hashedPassword, publicKey, isVerified: false, verifyToken });
 
         try {
-            await sendVerificationEmail(email.toLowerCase(), verifyToken);
+            // Detect if the request came from Localhost or Netlify
+            const requestOrigin = req.headers.origin || process.env.FRONTEND_URL || 'http://localhost:3000';
+            await sendVerificationEmail(email.toLowerCase(), verifyToken, requestOrigin);
             res.json({ success: true, message: 'Verification email sent.' });
         } catch (emailErr) {
             console.error("Email send error:", emailErr);
@@ -293,7 +295,13 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     if (!user) return res.json({ success: true, message: 'If an account exists, a reset link has been sent.' });
 
     const resetToken = jwt.sign({ userId: user._id, email: user.email, type: 'password_reset' }, process.env.JWT_SECRET, { expiresIn: '15m' });
-    try { await sendPasswordResetEmail(user.email, resetToken); res.json({ success: true, message: 'If an account exists, a reset link has been sent.' }); }
+    try {
+        // await sendPasswordResetEmail(user.email, resetToken);
+
+        const requestOrigin = req.headers.origin || process.env.FRONTEND_URL || 'http://localhost:3000';
+        await sendPasswordResetEmail(user.email, resetToken, requestOrigin);
+        res.json({ success: true, message: 'If an account exists, a reset link has been sent.' });
+    }
     catch (err) { res.status(500).json({ error: 'Failed to send reset email' }); }
 });
 
@@ -383,7 +391,12 @@ app.post('/api/users/change-email', authMiddleware, async (req, res) => {
     if (await User.findOne({ email: newEmail.toLowerCase() })) return res.status(400).json({ error: 'Email is already in use' });
 
     const token = jwt.sign({ userId: user._id, newEmail: newEmail.toLowerCase(), type: 'email_change' }, process.env.JWT_SECRET, { expiresIn: '15m' });
-    try { await sendEmailChangeEmail(newEmail, token); res.json({ success: true, message: 'Verification sent to new email.' }); }
+    try {
+        //await sendEmailChangeEmail(newEmail, token);
+        const requestOrigin = req.headers.origin || process.env.FRONTEND_URL || 'http://localhost:3000';
+        await sendEmailChangeEmail(newEmail, token, requestOrigin);
+        res.json({ success: true, message: 'Verification sent to new email.' });
+    }
     catch (err) { res.status(500).json({ error: 'Failed to send verification email' }); }
 });
 

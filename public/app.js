@@ -1,8 +1,24 @@
-// --- PRODUCTION MIGRATION CHANGE ---
+/*// --- PRODUCTION MIGRATION CHANGE ---
 // This dynamically switches between your local backend and your live Render backend
 const API_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:3001'
     : 'https://privacy-chat-app-backend.onrender.com'; // <-- REPLACE THIS WITH YOUR ACTUAL RENDER URL IF DIFFERENT
+*/
+
+// --- ULTIMATE ZERO-CONFIG API URL ---
+// Automatically detects if running on Netlify or Localhost
+const isProduction = window.location.hostname.includes('netlify.app');
+
+// If on Netlify, use the live Render backend. 
+// If on Localhost, use the local backend (http://localhost:3001).
+const API_URL = isProduction
+    ? 'https://privacy-chat-app-backend.onrender.com'
+    : 'http://localhost:3001';
+
+// NOTE: If you ever want to test your LOCAL frontend against the LIVE Render backend,
+// just temporarily change 'http://localhost:3001' to your Render URL above!
+ 
+
 
 let socket = null;
 let currentUser = null;
