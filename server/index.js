@@ -431,6 +431,8 @@ app.get('/api/requests/pending', authMiddleware, async (req, res) => {
     }
     res.json(populated);
 });
+// 🚨 CANARY TEST: If you see this in Render logs, the file is correct!
+console.log("🚨🚨🚨 RENDER IS READING THE CORRECT FILE: /api/requests/respond route loaded! 🚨🚨🚨");
 
 app.post('/api/requests/respond', authMiddleware, async (req, res) => {
     const { requestId, action } = req.body; 
