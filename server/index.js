@@ -433,7 +433,7 @@ app.get('/api/requests/pending', authMiddleware, async (req, res) => {
 });
 
 app.post('/api/requests/respond', authMiddleware, async (req, res) => {
-    const { requestId, action } = req.body;
+    const { requestId, action } = req.body; 
     const request = await Request.findOne({ _id: requestId, toUserId: req.user.userId });
     if (!request) return res.status(404).json({ error: 'Request not found' });
 
