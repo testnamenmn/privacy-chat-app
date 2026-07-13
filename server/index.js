@@ -659,7 +659,7 @@ io.on('connection', (socket) => {
         room.messages.push(newMessage);
         await room.save();
 
-        io.to(data.roomId).emit('receive_message', { message: newMessage, roomId: data.roomId });
+        io.to(data.roomId).emit('receive_message', { message: newMessage.toObject(), roomId: data.roomId });
 
         room.participants.forEach(participantId => {
             const pSocket = userSocketMap[participantId];

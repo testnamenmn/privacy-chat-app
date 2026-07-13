@@ -466,8 +466,16 @@ async function renderMessage(msg) {
     const isMine = msg.senderId === currentUser.id;
     div.className = `message ${isMine ? 'mine' : 'theirs'}`;
 
-    const date = new Date(msg.timestamp);
-    const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+  /*  const date = new Date(msg.timestamp);
+    const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });*/
+
+    // Fallback to current time if timestamp is missing or invalid
+    const date = msg.timestamp ? new Date(msg.timestamp) : new Date();
+    const timeStr = isNaN(date.getTime())
+        ? new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+        : date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+
 
     if (activeRoomType === 'group' && !isMine) {
         const senderEl = document.createElement('span');
