@@ -21,7 +21,9 @@ const io = new Server(server, { cors: { origin: process.env.FRONTEND_URL || "htt
 const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:3001',
-    'https://glowing-scone-f48160.netlify.app', // Your live Netlify URL
+    'http://localhost:5500', // <--- ADD THIS for VS Code Live Server
+    'http://127.0.0.1:5500', // <--- ADD THIS just in case
+    'https://glowing-scone-f48160.netlify.app',
     process.env.FRONTEND_URL
 ];
 

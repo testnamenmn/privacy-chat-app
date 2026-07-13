@@ -5,16 +5,22 @@ const API_URL = window.location.hostname === 'localhost'
     : 'https://privacy-chat-app-backend.onrender.com'; // <-- REPLACE THIS WITH YOUR ACTUAL RENDER URL IF DIFFERENT
 */
 
-// --- ULTIMATE ZERO-CONFIG API URL ---
-// Automatically detects if running on Netlify or Localhost
+// --- LOCAL TESTING SWITCH ---
+// Set to TRUE to test local frontend against LIVE Render backend.
+// Set to FALSE to test local frontend against LOCAL Node backend.
+const USE_LIVE_BACKEND_FOR_LOCAL_TESTING = true;
+
 const isProduction = window.location.hostname.includes('netlify.app');
 
-// If on Netlify, use the live Render backend. 
-// If on Localhost, use the local backend (http://localhost:3001).
-const API_URL = isProduction
-    ? 'https://privacy-chat-app-backend.onrender.com'
-    : 'http://localhost:3001';
-
+let API_URL;
+if (isProduction) {
+    API_URL = 'https://privacy-chat-app-backend.onrender.com';
+} else {
+    // If local, check our master switch
+    API_URL = USE_LIVE_BACKEND_FOR_LOCAL_TESTING
+        ? 'https://privacy-chat-app-backend.onrender.com'
+        : 'http://localhost:3001';
+}
 // NOTE: If you ever want to test your LOCAL frontend against the LIVE Render backend,
 // just temporarily change 'http://localhost:3001' to your Render URL above!
  
