@@ -659,7 +659,18 @@ io.on('connection', (socket) => {
         room.messages.push(newMessage);
         await room.save();
 
-        io.to(data.roomId).emit('receive_message', { message: newMessage.toObject(), roomId: data.roomId });
+        // io.to(data.roomId).emit('receive_message', { message: newMessage.toObject(), roomId: data.roomId });
+
+
+        // 🛡️ SAFE SERIALIZATION: Only call .toObject() if it's a Mongoose document
+        const safeMessage = typeof newMessage.toObject === 'function'
+            ? newMessage.toObject()
+            : newMessage;
+
+        io.to(data.roomId).emit('receive_message', {
+            roomId: data.roomId,
+            message: safeMessage
+        });
 
         room.participants.forEach(participantId => {
             const pSocket = userSocketMap[participantId];
