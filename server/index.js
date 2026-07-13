@@ -608,10 +608,13 @@ app.post('/api/files/upload', authMiddleware, async (req, res) => {
     res.json({ fileId: uploadResult.public_id });
 });
 
-app.get('/api/files/:fileId', authMiddleware, async (req, res) => {
+// 🛠️ THE FIX: The (*) allows the parameter to contain slashes (like Cloudinary folder paths)
+app.get('/api/files/:fileId(*)', authMiddleware, async (req, res) => {
+    const fileId = req.params.fileId; // This will now correctly be "purechat_encrypted_files/pylrgr0xpxnae3rnkdwx 
     try {
         // Fetch the raw text content directly from Cloudinary
-        const response = await fetch(`https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/raw/upload/${req.params.fileId}`);
+        const response =
+       await fetch(`https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/raw/upload/${req.params.fileId}`);
         const content = await response.text();
         res.json({ content });
     } catch (err) {
