@@ -435,6 +435,7 @@ app.get('/api/requests/pending', authMiddleware, async (req, res) => {
 console.log("🚨🚨🚨 RENDER IS READING THE CORRECT FILE: /api/requests/respond route loaded! 🚨🚨🚨");
 
 app.post('/api/requests/respond', authMiddleware, async (req, res) => {
+    console.log("🔥🔥🔥 ROUTE HIT! Body:", req.body); // <--- ADD THIS LINE
     const { requestId, action } = req.body; 
     const request = await Request.findOne({ _id: requestId, toUserId: req.user.userId });
     if (!request) return res.status(404).json({ error: 'Request not found' });
