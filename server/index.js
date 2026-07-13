@@ -422,7 +422,7 @@ app.post('/api/requests/send', authMiddleware, async (req, res) => {
     res.json({ success: true });
 });
 
-app.get('/api/requests/pending', authMiddleware, async (req, res) => {
+/*app.get('/api/requests/pending', authMiddleware, async (req, res) => {
     const pending = await Request.find({ toUserId: req.user.userId, status: 'pending' });
     const populated = [];
     for (const r of pending) {
@@ -430,7 +430,25 @@ app.get('/api/requests/pending', authMiddleware, async (req, res) => {
         populated.push({ ...r.toObject(), fromUser: { name: fromUser.name, email: fromUser.email } });
     }
     res.json(populated);
+});*/
+
+app.get('/api/requests/pending', authMiddleware, async (req, res) => {
+    const pending = await Request.find({ toUserId: req.user.userId, status: 'pending' });
+    const populated = [];
+
+    for (const r of pending) {
+        const fromUser = await User.findById(r.fromUserId);
+
+        // 🛠️ THE FIX: Mongoose uses _id, but the frontend expects id. Map it here!
+        const reqData = r.toObject();
+        reqData.id = reqData._id.toString();
+
+        populated.push({ ...reqData, fromUser: { name: fromUser.name, email: fromUser.email } });
+    }
+    res.json(populated);
 });
+
+
 // 🚨 CANARY TEST: If you see this in Render logs, the file is correct!
 console.log("🚨🚨🚨 RENDER IS READING THE CORRECT FILE: /api/requests/respond route loaded! 🚨🚨🚨");
 
