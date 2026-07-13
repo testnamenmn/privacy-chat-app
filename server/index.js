@@ -492,7 +492,7 @@ app.post('/api/requests/respond', authMiddleware, async (req, res) => {
 });
 
 // --- ROOMS & GROUPS ROUTES ---
-app.post('/api/rooms/group', authMiddleware, async (req, res) => {
+/*app.post('/api/rooms/group', authMiddleware, async (req, res) => {
     const { name, memberIds } = req.body;
     if (!name) return res.status(400).json({ error: 'Group name required' });
 
@@ -500,6 +500,29 @@ app.post('/api/rooms/group', authMiddleware, async (req, res) => {
     const creatorSocket = userSocketMap[req.user.userId];
     if (creatorSocket) io.to(creatorSocket).emit('join_room', newGroup._id);
     res.json(newGroup);
+});*/
+
+
+app.post('/api/rooms/group', authMiddleware, async (req, res) => {
+    const { name, memberIds } = req.body;
+    if (!name) return res.status(400).json({ error: 'Group name required' });
+
+    const newGroup = await Room.create({
+        type: 'group',
+        groupName: name,
+        adminId: req.user.userId,
+        participants: [req.user.userId],
+        messages: []
+    });
+
+    // 🛠️ THE FIX: Convert mongoose document to plain object and map _id to id
+    const groupData = newGroup.toObject();
+    groupData.id = groupData._id.toString();
+
+    const creatorSocket = userSocketMap[req.user.userId];
+    if (creatorSocket) io.to(creatorSocket).emit('join_room', groupData.id);
+
+    res.json(groupData);
 });
 
 app.post('/api/rooms/:roomId/add-member', authMiddleware, async (req, res) => {
